@@ -361,6 +361,7 @@ void MQTTProtocol_checkPendingWrites()
 			{
 				Clients* client = pw->client;
 
+				printf("Check pending writes for %x\n", client);
 				MQTTProtocol_removePublication(pw->p);
 				state.pending_writes.current = le;
 				ListRemove(&(state.pending_writes), le->content); /* does NextElement itself */
@@ -735,6 +736,7 @@ int MQTTProtocol_handleConnects(void* pack, int sock, Clients* client)
 			connect->clientID = NULL; /* don't want to free this space as it is being used in the client structure */
 		}
 		client->socket = sock;
+		printf("Add MQTT Client %x ID %s\n", client, client->clientID);
 		TreeAdd(bstate->clients, client, sizeof(Clients) + strlen(client->clientID)+1 + 3*sizeof(List));
 	}
 	else
@@ -764,6 +766,7 @@ int MQTTProtocol_handleConnects(void* pack, int sock, Clients* client)
 			TreeRemoveNodeIndex(bstate->clients, elem, 1);
 			TreeRemoveKeyIndex(bstate->clients, &client->socket, 0);
 			client->socket = sock;
+			printf("Add MQTT Client %x ID %s\n", client, client->clientID);
 			TreeAdd(bstate->clients, client, sizeof(Clients) + strlen(client->clientID)+1 + 3*sizeof(List));
 		}
 	}

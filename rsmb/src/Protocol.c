@@ -242,6 +242,7 @@ void Protocol_processPublication(Publish* publish, char* originator)
 	}
 
 	clients = SubscriptionEngines_getSubscribers(bstate->se, publish->topic, originator);
+
 	if (strncmp(publish->topic, "$SYS/client/", 12) == 0)
 	{ /* default subscription for a client */
 		Node* node = TreeFindIndex(bstate->clients, &publish->topic[12], 1);
@@ -281,7 +282,7 @@ void Protocol_processPublication(Publish* publish, char* originator)
 			int retained = 0;
 			Messages* saved = NULL;
 			char* original_topic = publish->topic;
-			
+
 #if !defined(NO_BRIDGE)
 			if (pubclient->outbound || pubclient->noLocal)
 			{
@@ -337,6 +338,15 @@ int Protocol_startOrQueuePublish(Clients* pubclient, Publish* publish, int qos, 
 	int rc = TCPSOCKET_COMPLETE;
 
 	FUNC_ENTRY;
+
+	printf("Client Queue stats for %x %s\n", pubclient, pubclient->clientID);
+	printf("Connected %u Good %u No Pending Writes %u Queued Count %u Outbound Count %u\n",
+	    pubclient->connected,
+	    pubclient->good,
+	    Socket_noPendingWrites(pubclient->socket),
+	    queuedMsgsCount(pubclient),
+	    pubclient->outboundMsgs->count);
+
 	if (pubclient->connected && pubclient->good &&           /* client is connected and has no errors */
 		Socket_noPendingWrites(pubclient->socket) &&         /* there aren't any previous packets still stacked up on the socket */
 		queuedMsgsCount(pubclient) == 0 &&                   /* there are no messages ahead in the queue */
@@ -362,6 +372,7 @@ int Protocol_startOrQueuePublish(Clients* pubclient, Publish* publish, int qos, 
 		else
 		{
 #endif
+
 			rc = MQTTProtocol_startPublish(pubclient, publish, qos, retained, mm);
 			/* We don't normally queue QoS 0 messages just send them straight through.  But in the case when none of the packet
 			 * is written we need to queue it up.  If only part of the packet is written, then it is buffered by the socket module.
@@ -373,7 +384,10 @@ int Protocol_startOrQueuePublish(Clients* pubclient, Publish* publish, int qos, 
 #endif
 	}
 	else if (qos != 0 || (pubclient->connected && pubclient->good))    /* only queue qos 0 if the client is connected in a good way */
+	{
 		rc = MQTTProtocol_queuePublish(pubclient, publish, qos, retained, priority, mm);
+	}
+
 	FUNC_EXIT_RC(rc);
 	return rc;
 }

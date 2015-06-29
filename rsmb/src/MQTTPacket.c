@@ -991,9 +991,9 @@ int MQTTPacket_send_publish(Publish* pack, int dup, int qos, int retained, int s
 	if (strlen(pack->topic) < 15 || strncmp(pack->topic, "$SYS/broker/log", 15) != 0)
 	{
 		if (qos == 0)
-			Log(LOG_PROTOCOL, 27, NULL, socket, clientID, retained, rc);
+			Log(LOG_PROTOCOL, 27, NULL, socket, clientID, retained, rc, pack->topic);
 		else
-			Log(LOG_PROTOCOL, 10, NULL, socket, clientID, pack->msgId, qos, retained, rc);
+			Log(LOG_PROTOCOL, 10, NULL, socket, clientID, pack->msgId, qos, retained, rc, pack->topic);
 	}
 	FUNC_EXIT_RC(rc);
 	return rc;

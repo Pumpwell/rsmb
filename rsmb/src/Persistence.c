@@ -1189,6 +1189,7 @@ Clients* Persistence_createDefaultClient(char* clientID)
 	newc->inboundMsgs = ListInitialize();
 	for (i = 0; i < PRIORITY_MAX; ++i)
 		newc->queuedMsgs[i] = ListInitialize();
+	printf("Add Disconnected Client %x ID %s\n", newc, clientID);
 	FUNC_EXIT;
 	return newc;
 }

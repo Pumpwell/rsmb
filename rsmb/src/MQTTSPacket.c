@@ -193,7 +193,7 @@ void* MQTTSPacket_Factory(int sock, char** clientAddr, struct sockaddr* from, ui
 	data = MQTTSPacket_parse_header( &header, data ) ;
 
 	/* In case of Forwarder Encapsulation packet, Length: 1-octet long, specifies the number of octets up to the end
-	 * of the “Wireless Node Id” field (incl. the Length octet itself). Length does not include length of payload
+	 * of the Wireless Node Id field (incl. the Length octet itself). Length does not include length of payload
 	 * (encapsulated MQTT-SN message itself).
 	 */
 	if (header.type != MQTTS_FRWDENCAP && header.len != n)
@@ -207,11 +207,11 @@ void* MQTTSPacket_Factory(int sock, char** clientAddr, struct sockaddr* from, ui
 		if ( header.type == MQTTS_FRWDENCAP )
 		{
 			// Skip Crt(2) field
-			data += 2 ;
+			data ++ ;
 			// Wireless Node Id
 			*wlnid = data ;
 			// Length(1) + MsgType(1) + Crt(2)
-			*wlnid_len = header.len - 4 ;
+			*wlnid_len = header.len - 3;
 			data += *wlnid_len ;
 
 			// Read encapsulated packet and set header and shift data to beginning of payload
@@ -240,7 +240,7 @@ char* MQTTSPacket_parse_header( MQTTSHeader* header, char* data ) {
 
 	/* The Length field is either 1- or 3-octet long and specifies the total number of octets contained in
 	 *    the message (including the Length field itself).
-	 * If the first octet of the Length field is coded “0x01” then the Length field is 3-octet long; in this
+	 * If the first octet of the Length field is coded 0x01 then the Length field is 3-octet long; in this
 	 *    case, the two following octets specify the total number of octets of the message (most-significant
 	 *    octet first). Otherwise, the
 	 * Length field is only 1-octet long and specifies itself the total number of octets contained in the

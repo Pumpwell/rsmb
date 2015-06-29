@@ -165,21 +165,20 @@ PacketBuffer MQTTSPacketSerialize_forwarder_encapsulation(const Clients* client 
 {
 	PacketBuffer buff ;
 
-	buff.len = payload.len + client->wirelessNodeIdLen + 4 ; // Length(1) + MsgType(1) + Ctrl(2) = 4
+	buff.len = payload.len + client->wirelessNodeIdLen + 3 ; // Length(1) + MsgType(1) + Ctrl(2) = 4
 	buff.data = malloc(buff.len);
 	buff.ptr = buff.data ;
 
-	*(buff.ptr)++ = (unsigned char)(client->wirelessNodeIdLen + 4) ;
+	*(buff.ptr)++ = (unsigned char)(client->wirelessNodeIdLen + 3) ;
 	*(buff.ptr)++ = MQTTS_FRWDENCAP ;
 	*(buff.ptr)++ = 0 ;
-	*(buff.ptr)++ = 1 ;
 	// Copy Wireless Node ID
 	memcpy(buff.ptr , client->wirelessNodeId , client->wirelessNodeIdLen) ;
 	buff.ptr += client->wirelessNodeIdLen ;
 	// Copy original packet
 	memcpy(buff.ptr , payload.data , payload.len) ;
 
-fprintf(stderr, "Packet %s wrapped into FRWDENCAP...\n" ,  MQTTSPacket_name( payload.data[1]) ) ;
+	fprintf(stdout, "Packet %s wrapped into FRWDENCAP...\n" ,  MQTTSPacket_name( payload.data[1]) ) ;
 	// Free original packet
 	free(payload.data) ;
 	payload.data = NULL ;

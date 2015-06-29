@@ -174,6 +174,7 @@ Clients* MQTTSProtocol_connect(char* ip_address, char* clientID, int cleansessio
 		newc->connect_state = 2;
 		rc = MQTTSPacket_send_connect(newc);
 	}
+	printf("Add MQTTS Client %x ID %s\n", newc, newc->clientID);
 	TreeAdd(bstate->clients, newc, sizeof(Clients) + strlen(newc->clientID)+1 + 3*sizeof(List));
 
 	FUNC_EXIT;
@@ -215,6 +216,7 @@ void MQTTSProtocol_reconnect(char* ip_address, Clients* client)
 		MQTTSPacket_send_connect(client);
 		time(&(client->lastContact));
 	}
+	printf("Add MQTTS Reconnect Client %x ID %s\n", client, client->clientID);
 	TreeAdd(bstate->clients, client, sizeof(Clients) + strlen(client->clientID)+1 + 3*sizeof(List));
 	FUNC_EXIT;
 }
