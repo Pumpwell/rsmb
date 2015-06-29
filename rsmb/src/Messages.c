@@ -51,8 +51,8 @@ static char* protocol_message_list[] =
 	"%d %s -> SUBACK msgid: %d (%d)", /* 7, was 40 */
 	"%d %s <- UNSUBSCRIBE msgid: %d", /* 8, was 41 */
 	"%d %s -> UNSUBACK msgid: %d (%d)", /* 9 */
-	"%d %s -> PUBLISH msgid: %d qos: %d retained: %d (%d)", /* 10, was 42 */
-	"%d %s <- PUBLISH msgid: %d qos: %d retained: %d", /* 11, was 46 */
+	"%d %s -> PUBLISH msgid: %d qos: %d retained: %d (%d) %s", /* 10, was 42 */
+	"%d %s <- PUBLISH msgid: %d qos: %d retained: %d topic %s", /* 11, was 46 */
 	"%d %s -> PUBACK msgid: %d (%d)", /* 12, was 47 */
 	"%d %s -> PUBREC msgid: %d (%d)", /* 13, was 48 */
 	"%d %s <- PUBACK msgid: %d", /* 14, was 49 */
@@ -68,7 +68,7 @@ static char* protocol_message_list[] =
 	"%d %s <- UNSUBACK msgid: %d", /* 24, was 74 */
 	"%d %s -> UNSUBSCRIBE msgid: %d (%d)", /* 25, was 106 */
 	"%d %s <- CONNECT", /* 26 */
-	"%d %s -> PUBLISH qos: 0 retained: %d (%d)", /* 27 */
+	"%d %s -> PUBLISH qos: 0 retained: %d (%d) %s", /* 27 */
 	"%d %s -> DISCONNECT (%d)", /* 28 */
 	"%d %s -- reserved", /* 29 */
 #if defined(MQTTS)

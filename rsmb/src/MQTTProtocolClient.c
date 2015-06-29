@@ -322,7 +322,7 @@ int MQTTProtocol_handlePublishes(void* pack, int sock, Clients* client)
 	{
 		clientid = client->clientID;
 		Log(LOG_PROTOCOL, 11, NULL, sock, clientid, publish->msgId, publish->header.bits.qos,
-				publish->header.bits.retain);
+				publish->header.bits.retain, publish->topic);
 	}
 #if defined(MQTTS)
 	rc = Protocol_handlePublishes(publish, sock, client, clientid, 0);
@@ -576,7 +576,8 @@ void MQTTProtocol_keepalive(time_t now)
 				if (client->ping_outstanding)
 				{
 					Log(LOG_INFO, 143, NULL, client->keepAliveInterval, client->clientID);
-					MQTTProtocol_closeSession(client, 1);
+					client->ping_outstanding = 0;
+					//MQTTProtocol_closeSession(client, 1);
 				}
 				else
 				{
@@ -601,7 +602,7 @@ void MQTTProtocol_keepalive(time_t now)
 					&& (difftime(now, client->lastContact) > 2*(client->keepAliveInterval)))
 		{ /* zero keepalive interval means never disconnect */
 			Log(LOG_INFO, 24, NULL, client->keepAliveInterval, client->clientID);
-			MQTTProtocol_closeSession(client, 1);
+			//MQTTProtocol_closeSession(client, 1);
 		}
 	}
 	FUNC_EXIT;
@@ -623,6 +624,7 @@ int MQTTProtocol_processQueued(Clients* client)
 	int threshold_log_message_issued = 0;
 
 	FUNC_ENTRY;
+	//printf("Queue Count for %x Before: %d\n", client, queuedMsgsCount(client));
 	if (Protocol_isClientQuiescing(client))
 		goto exit; /* don't create new work - just finish in-flight stuff */
 
@@ -708,6 +710,7 @@ int MQTTProtocol_processQueued(Clients* client)
 #endif
 exit:
 	FUNC_EXIT_RC(rc);
+	//printf("Queue Count for %x After: %d\n", client, queuedMsgsCount(client));
 	return rc;
 }
 

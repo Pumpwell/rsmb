@@ -282,7 +282,16 @@ void MQTTSProtocol_timeslice(int sock)
 		 *  - error handling
 		 *  - centralise calls to time( &(c->lastContact) ); (currently in each _handle* function
 		 */
+
+	    if (client != NULL
+	        && client->connected == 1
+	        && client->good == 1)
+	    {
+	        printf("Process the MQTTS queue for %x\n", client);
+	        MQTTProtocol_processQueued(client);
+	    }
 	}
+
 	FUNC_EXIT;
 }
 
@@ -394,7 +403,14 @@ int MQTTSProtocol_handleConnects(void* pack, int sock, char* clientAddr, Clients
 	if (elem == NULL)
 	{
 		client = TreeRemoveKey(bstate->disconnected_mqtts_clients, connect->clientID);
+
+		Clients* persisted_client;
 		if (client == NULL) /* this is a totally new connection */
+		{
+		    persisted_client = TreeRemoveKey(bstate->disconnected_clients, connect->clientID);
+		}
+
+		if (client == NULL)
 		{
 			/* Brand new client connection */
 			int i;
@@ -402,10 +418,22 @@ int MQTTSProtocol_handleConnects(void* pack, int sock, char* clientAddr, Clients
 			client = malloc(sizeof(Clients));
 			memset(client, '\0', sizeof(Clients));
 			client->protocol = PROTOCOL_MQTTS;
-			client->outboundMsgs = ListInitialize();
-			client->inboundMsgs = ListInitialize();
-			for (i = 0; i < PRIORITY_MAX; ++i)
-				client->queuedMsgs[i] = ListInitialize();
+
+			if (persisted_client)
+			{
+	            client->outboundMsgs = persisted_client->outboundMsgs;
+	            client->inboundMsgs = persisted_client->inboundMsgs;
+	            for (i = 0; i < PRIORITY_MAX; ++i)
+	                client->queuedMsgs[i] = persisted_client->queuedMsgs[i];
+			}
+			else
+			{
+	            client->outboundMsgs = ListInitialize();
+	            client->inboundMsgs = ListInitialize();
+	            for (i = 0; i < PRIORITY_MAX; ++i)
+	                client->queuedMsgs[i] = ListInitialize();
+			}
+
 			client->registrations = ListInitialize();
 			client->noLocal = 0; /* (connect->version == PRIVATE_PROTOCOL_VERSION) ? 1 : 0; */
 			client->clientID = connect->clientID;
@@ -1279,7 +1307,7 @@ int MQTTSProtocol_startPublishCommon(Clients* client, Publish* mqttPublish, int 
 			(topicId = MQTTSProtocol_getRegisteredTopicId(client, mqttPublish->topic)) == 0 && (qos != 3))
 	{
 		/* TODO: Logic elsewhere _should_ mean this case never happens... */
-		/*printf("I want to send a msg to %s on topic %s but it isn't registered\n",client->clientID,mqttPublish->topic); */
+		/* printf("I want to send a msg to %s on topic %s but it isn't registered\n",client->clientID,mqttPublish->topic); */
 	}
 	else
 	{

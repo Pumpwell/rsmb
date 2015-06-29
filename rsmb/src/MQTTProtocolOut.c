@@ -107,6 +107,7 @@ void MQTTProtocol_reconnect(char* ip_address, Clients* client)
 		MQTTPacket_send_connect(client);
 		time(&(client->lastContact));
 	}
+	printf("Add Client %x ID %s connect to %s %d\n", client, client->clientID, address, port);
 	TreeAdd(bstate->clients, client, sizeof(Clients) + strlen(client->clientID)+1 + 3*sizeof(List));
 	FUNC_EXIT;
 }
@@ -170,6 +171,7 @@ Clients* MQTTProtocol_connect(char* ip_address, char* clientID, int cleansession
 		newc->connect_state = 2; /* TCP connect completed, in which case send the MQTT connect packet */
 		MQTTPacket_send_connect(newc);
 	}
+	printf("Add Client %x ID %s connected to %s %d\n", newc, newc->clientID, addr, port);
 	TreeAdd(bstate->clients, newc, sizeof(Clients) + strlen(newc->clientID)+1 + 3*sizeof(List));
 	FUNC_EXIT;
 	return newc;

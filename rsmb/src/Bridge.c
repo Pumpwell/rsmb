@@ -393,12 +393,13 @@ void Bridge_restartConnection(BridgeConnections* bc, Clients** pclient)
 		if (bc->try_private && (*pclient)->noLocal == 0)
 			(*pclient)->noLocal = 1;
 		if (pclient == &(bc->backup))
-			addr = bc->addresses->first;
+			addr = bc->addresses->first->content;
 		else
 		{
 			if (ListNextElement(bc->addresses, &(bc->cur_address)) == NULL)
 				bc->cur_address = bc->addresses->first;
-			addr = bc->cur_address;
+//			addr = bc->cur_address->content;
+			addr = bc->addresses->first;
 		}
 		bc->last_connect_result = CONNACK_NONE_RECEIVED;
 		Log(LOG_INFO, 127, NULL, bc->name, (char*)(addr->content));
